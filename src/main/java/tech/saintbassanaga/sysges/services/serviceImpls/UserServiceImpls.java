@@ -129,7 +129,7 @@ public class UserServiceImpls implements UserService {
      * Retrieves Users with tasks matching specified criteria such as task status,
      * user role, and location.
      *
-     * @param status   the status of tasks (e.g., "running") to filter Users by
+     * @param state   the status of tasks (e.g., "running") to filter Users by
      * @param role     the role of Users to filter by
      * @param location the location of Users to filter by
      * @return a list of ShortUserDto containing summarized information for matching Users
