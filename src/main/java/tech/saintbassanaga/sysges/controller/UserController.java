@@ -79,7 +79,7 @@ public class UserController {
     /**
      * Endpoint to retrieve users with tasks that have specific criteria.
      *
-     * @param status   the task status filter
+     * @param state   the task status filter
      * @param role     the user role filter
      * @param location the user location filter
      * @return a response entity with the list of matching users

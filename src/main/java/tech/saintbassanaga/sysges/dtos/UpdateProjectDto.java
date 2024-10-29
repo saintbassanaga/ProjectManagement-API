@@ -11,6 +11,6 @@ import java.util.UUID;
 /**
  * DTO for {@link tech.saintbassanaga.sysges.models.Project}
  */
-public record UpdateProjectDto(@NotNull(message = "Could Not be Null") String description, Date endDate,
-                               ProjectState projectState, Set<TaskDto> userUuids) implements Serializable {
+public record UpdateProjectDto(String title, @NotNull(message = "Could Not be Null") String description  ,Date endDate,
+                               ProjectState projectState, Set<UUID> users, Date startDate) implements Serializable {
 }

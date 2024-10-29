@@ -11,5 +11,5 @@ import java.util.UUID;
  * DTO for {@link tech.saintbassanaga.sysges.models.Project}
  */
 public record ShowProjectDto(String titre, String description, Date startDate, Date endDate, ProjectState projectState,
-                         Set<UUID> userUuids) implements Serializable {
+                         Set<ShortUserDto> users) implements Serializable {
 }
