@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import tech.saintbassanaga.sysges.dtos.*;
+import tech.saintbassanaga.sysges.exception.ApiResponse;
 import tech.saintbassanaga.sysges.models.Project;
 import tech.saintbassanaga.sysges.services.ProjectService;
 import java.util.List;
@@ -15,8 +16,8 @@ import java.util.UUID;
  * REST Controller for managing Project operations.
  * Provides endpoints for creating, updating, retrieving, and deleting projects
  * with validation, structured responses, and exception handling.
- *
- * Created by saintbassanaga {stpaul} - Tue - 10/29/24
+ * <p>
+ * Created by saintbassanaga  - Tue - 10/29/24
  */
 
 @RestController
@@ -110,30 +111,5 @@ public class ProjectController {
         }
     }
 
-    // Inner class to format API responses
-    public static class ApiResponse {
-        private String message;
-        private int status;
-        private Object data;
-
-        public ApiResponse(String message, int status) {
-            this.message = message;
-            this.status = status;
-        }
-
-        public ApiResponse(String message, int status, Object data) {
-            this.message = message;
-            this.status = status;
-            this.data = data;
-        }
-
-        // Getters and Setters
-        public String getMessage() { return message; }
-        public void setMessage(String message) { this.message = message; }
-        public int getStatus() { return status; }
-        public void setStatus(int status) { this.status = status; }
-        public Object getData() { return data; }
-        public void setData(Object data) { this.data = data; }
-    }
 }
 
