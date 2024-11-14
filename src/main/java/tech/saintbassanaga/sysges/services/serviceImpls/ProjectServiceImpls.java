@@ -3,11 +3,16 @@ package tech.saintbassanaga.sysges.services.serviceImpls;
 import org.springframework.stereotype.Service;
 import tech.saintbassanaga.sysges.dtos.*;
 import tech.saintbassanaga.sysges.models.Project;
+import tech.saintbassanaga.sysges.models.Task;
 import tech.saintbassanaga.sysges.repository.ProjectRepository;
+import tech.saintbassanaga.sysges.repository.TaskRepository;
 import tech.saintbassanaga.sysges.repository.UserRepository;
 import tech.saintbassanaga.sysges.services.ProjectService;
+import tech.saintbassanaga.sysges.services.TaskService;
+import tech.saintbassanaga.sysges.services.specificationService.TaskSearchService;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -15,8 +20,8 @@ import java.util.stream.Collectors;
  * Implementation of the ProjectService interface for managing Project-related operations.
  * Provides methods for creating, updating, retrieving, and deleting Project entities.
  * This service layer interacts with Project and User repositories.
- *
- * Created by saintbassanaga {stpaul}
+ * <p>
+ * Created by saintbassanaga
  * In the Project SysGes at Tue - 10/29/24
  */
 
@@ -25,6 +30,9 @@ public class ProjectServiceImpls implements ProjectService {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final TaskService taskService;
+    private final TaskRepository taskRepository;
+    private final TaskSearchService taskSearchService;
 
     /**
      * Constructs a new ProjectServiceImpls with necessary dependencies.
@@ -32,9 +40,13 @@ public class ProjectServiceImpls implements ProjectService {
      * @param projectRepository the repository for managing Project entities
      * @param userRepository    the repository for managing User entities
      */
-    public ProjectServiceImpls(ProjectRepository projectRepository, UserRepository userRepository) {
+    public ProjectServiceImpls(ProjectRepository projectRepository, UserRepository userRepository, TaskService taskService, TaskRepository taskRepository,
+                               TaskSearchService taskSearchService) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
+        this.taskService = taskService;
+        this.taskRepository = taskRepository;
+        this.taskSearchService = taskSearchService;
     }
 
     /**
@@ -68,10 +80,7 @@ public class ProjectServiceImpls implements ProjectService {
 
         // Update users associated with the project, if provided
         if (updateProjectDto.users() != null) {
-            project.setUsers(updateProjectDto.users()
-                    .stream()
-                    .map(userRepository::getReferenceById)
-                    .collect(Collectors.toSet()));
+            project.setUsers(updateProjectDto.users().stream().map(userRepository::getReferenceById).collect(Collectors.toSet()));
         }
         return projectRepository.save(project);
     }
@@ -95,8 +104,7 @@ public class ProjectServiceImpls implements ProjectService {
      */
     @Override
     public ShowProjectDto findByUuid(UUID uuid) {
-        Project project = projectRepository.findById(uuid)
-                .orElseThrow(() -> new RuntimeException("Not Found"));
+        Project project = projectRepository.findById(uuid).orElseThrow(() -> new RuntimeException("Not Found"));
         return DtoMapper.showProjectDto(project);
     }
 
@@ -106,7 +114,33 @@ public class ProjectServiceImpls implements ProjectService {
      * @param uuid the UUID of the Project to be deleted
      */
     @Override
-    public void deleteUser(UUID uuid) {
+    public void deleteByUser(UUID uuid) {
         projectRepository.deleteById(uuid);
+    }
+
+    /**
+     * @param projectUuid n
+     * @return message
+     */
+    @Override
+    public String addTask(UUID projectUuid, TaskDto taskDto) {
+        Project referenceById = projectRepository.getReferenceById(projectUuid);
+        Task response = taskService.createTask(projectUuid,taskDto);
+        referenceById.setTasks(Set.of(response));
+        return "Task created Successfully with id : " + response.getUuid();
+    }
+
+    @Override
+    public String deleteTask(UUID projectUuid, UUID taskUUID) {
+        taskService.delete(
+                taskRepository
+                        .findOne(
+                                taskSearchService.findTaskByProjectTaskUuid(projectUuid, taskUUID)
+                        )
+                        .orElseThrow(() -> new RuntimeException("Not Found Task"))
+                        .getUuid()
+        );
+
+        return "task delete successfully";
     }
 }

@@ -24,6 +24,7 @@ import java.util.UUID;
 @RequestMapping("/api/projects")
 public class ProjectController {
 
+
     private final ProjectService projectService;
 
     public ProjectController(ProjectService projectService) {
@@ -104,8 +105,40 @@ public class ProjectController {
     @DeleteMapping("/{uuid}")
     public ResponseEntity<?> deleteProject(@PathVariable UUID uuid) {
         try {
-            projectService.deleteUser(uuid);
+            projectService.deleteByUser(uuid);
             return ResponseEntity.ok(new ApiResponse("Project deleted successfully", HttpStatus.OK.value()));
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found", ex);
+        }
+    }
+
+    /**
+     * Creates a new project.
+     *
+     * @param taskDto the DTO containing task creation data
+     * @return a ResponseEntity containing a success message with the new project UUID
+     */
+    @PostMapping("/{projectUuid}/addTask")
+    public ResponseEntity<?> addTaskToProject(@Valid @RequestBody TaskDto taskDto, @PathVariable UUID projectUuid) {
+        try {
+            String response = projectService.addTask(projectUuid,taskDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(response, HttpStatus.CREATED.value()));
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error creating new task ", ex);
+        }
+    }
+
+    /**
+     * Deletes a project by UUID.
+     *
+     * @param taskUuid the UUID of the project to delete
+     * @return a no-content response upon successful deletion
+     */
+    @DeleteMapping("/{projectUuid}/{taskUuid}/")
+    public ResponseEntity<?> deleteTask(@PathVariable UUID taskUuid, @PathVariable UUID projectUuid) {
+        try {
+           String response = projectService.deleteTask(projectUuid,taskUuid);
+            return ResponseEntity.ok(new ApiResponse(response, HttpStatus.OK.value()));
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found", ex);
         }

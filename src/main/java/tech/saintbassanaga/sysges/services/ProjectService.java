@@ -18,5 +18,7 @@ public interface ProjectService {
     public Project update(UUID userUuid, UpdateProjectDto updateProjectDto);
     public List<ShortProjectDto> findAll();
     public ShowProjectDto findByUuid(UUID uuid);
-    public void deleteUser(UUID uuid);
+    public void deleteByUser(UUID uuid);
+    public String addTask(UUID projectUuid, TaskDto taskDto);
+    public String deleteTask(UUID projectUuid, UUID taskUuid);
 }

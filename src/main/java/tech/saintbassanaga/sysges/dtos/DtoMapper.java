@@ -1,6 +1,7 @@
 package tech.saintbassanaga.sysges.dtos;
 
 import tech.saintbassanaga.sysges.models.Project;
+import tech.saintbassanaga.sysges.models.Task;
 import tech.saintbassanaga.sysges.models.User;
 
 import java.util.stream.Collectors;
@@ -19,10 +20,10 @@ public class DtoMapper {
                 user.getTasks()
                         .stream()
                         .map(task -> new TaskDto(
-                                task.getProject().getTitre(),
+                                null,
                                 task.getTitle(),
                                 task.getDueDate(),
-                                task.getState()))
+                                task.getState(), task.getDescription()))
                         .collect(Collectors.toSet()));
     }
 
@@ -35,6 +36,14 @@ public class DtoMapper {
         );
     }
 
+    public static Task fromTaskDto(TaskDto taskDto) {
+        Task task = new Task();
+        task.setTitle(taskDto.title());
+        task.setDescription(taskDto.description());
+        task.setState(taskDto.state());
+        task.setDueDate(taskDto.dueDate());
+        return task;
+    }
     public static User creationUser(UserCreationDto updateProjectDto){
         User newUser = new User();
         newUser.setName(updateProjectDto.name());
@@ -61,6 +70,14 @@ public class DtoMapper {
                         .collect(Collectors.toSet())
         );
     }
+    public static TaskDto toTaskDto(Task project){
+        return  new TaskDto(
+                null,
+                project.getDescription(),
+                project.getDueDate(),
+                project.getState(),
+                project.getDescription());
+    }
 
     public static Project creationProject(CreateProjectDto createProjectDto){
         Project newProject = new Project();
@@ -72,7 +89,8 @@ public class DtoMapper {
         return newProject;
     }
 
-/*    public static Project updateProject(UpdateProjectDto updateProjectDto){
+/*
+*    public static Project updateProject(UpdateProjectDto updateProjectDto){
 
     }*/
 

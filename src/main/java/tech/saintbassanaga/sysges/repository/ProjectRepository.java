@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import tech.saintbassanaga.sysges.dtos.ShortProjectDto;
 import tech.saintbassanaga.sysges.models.Project;
+import tech.saintbassanaga.sysges.models.Task;
 
 import java.util.List;
 import java.util.UUID;

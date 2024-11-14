@@ -10,8 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * In the Project SysGes at Tue - 10/29/24
  */
 @Configuration
-public class SecurityConfig {
-
+public class DependencyInjection {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

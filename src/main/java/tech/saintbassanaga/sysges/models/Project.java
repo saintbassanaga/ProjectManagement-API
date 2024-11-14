@@ -48,4 +48,7 @@ public class Project {
             inverseJoinColumns = @JoinColumn(name = "users_uuid"))
     private Set<User> users = new LinkedHashSet<>();
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Task> tasks = new LinkedHashSet<>();
+
 }

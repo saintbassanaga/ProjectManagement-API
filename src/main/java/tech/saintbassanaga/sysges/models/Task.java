@@ -18,8 +18,8 @@ import java.util.Date;
         @Index(name = "idx_task_project_uuid_unq", columnList = "project_uuid", unique = true)
 })
 public class Task extends AuditingEntity {
-
-    @OneToOne(cascade = CascadeType.ALL, optional = false, orphanRemoval = true)
+    @ManyToOne
+    @JoinColumn(name = "project_uuid")
     private Project project;
 
     private String title;
