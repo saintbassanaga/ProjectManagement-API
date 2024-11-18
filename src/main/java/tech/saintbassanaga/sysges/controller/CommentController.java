@@ -3,6 +3,7 @@ package tech.saintbassanaga.sysges.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import tech.saintbassanaga.sysges.dtos.CommentDto;
 import tech.saintbassanaga.sysges.exception.GeneralException;
 import tech.saintbassanaga.sysges.models.Comment;
 import tech.saintbassanaga.sysges.services.CommentService;
@@ -56,7 +57,7 @@ public class CommentController {
      * @return the created comment
      */
     @PostMapping
-    public ResponseEntity<ApiResponse> addComment(@RequestBody Comment comment) {
+    public ResponseEntity<ApiResponse> addComment(@RequestBody CommentDto comment) {
         try {
             Comment createdComment = commentService.addComment(comment);
             ApiResponse apiResponse = new ApiResponse("Comment created successfully", 201, createdComment);

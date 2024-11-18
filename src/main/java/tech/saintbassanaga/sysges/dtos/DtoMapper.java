@@ -1,8 +1,10 @@
 package tech.saintbassanaga.sysges.dtos;
 
+import tech.saintbassanaga.sysges.models.Comment;
 import tech.saintbassanaga.sysges.models.Project;
 import tech.saintbassanaga.sysges.models.Task;
 import tech.saintbassanaga.sysges.models.User;
+import tech.saintbassanaga.sysges.models.mapped.CommentType;
 
 import java.util.stream.Collectors;
 
@@ -25,6 +27,15 @@ public class DtoMapper {
                                 task.getDueDate(),
                                 task.getState(), task.getDescription()))
                         .collect(Collectors.toSet()));
+    }
+
+
+    public static Comment commentDto(CommentDto commentDto){
+        Comment comment = new Comment();
+        comment.setType(commentDto.type());
+        comment.setContent(commentDto.content());
+
+        return comment;
     }
 
     public static ShortUserDto shortUserDto(User user){

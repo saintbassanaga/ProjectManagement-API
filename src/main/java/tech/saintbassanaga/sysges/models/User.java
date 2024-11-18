@@ -35,11 +35,11 @@ public class User extends AuditingEntity implements UserDetails {
     @Column(nullable = false)
     private String name;
 
-    @NotNull
+    @NotNull(message = "Surname must not be null")
     @Column(nullable = false)
     private String surname;
 
-    @NotNull
+    @NotNull(message = "username must not be null")
     @Size(min = 6, max = 15)
     @Column(nullable = false, unique = true, name = "username")
     private String username;

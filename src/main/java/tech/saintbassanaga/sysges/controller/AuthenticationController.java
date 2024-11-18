@@ -38,7 +38,7 @@ public class AuthenticationController {
     public ResponseEntity<ApiResponse> registerUser(@RequestBody RegisterUserDto registerRequest) {
         try {
             // Check if username already exists
-            if (userRepository.existByUsername(registerRequest.username())) {
+            if (userRepository.existsByUsername(registerRequest.username())) {
                 ApiResponse apiResponse = new ApiResponse("Error: Username is already taken!", 400, null);
                 return ResponseEntity.badRequest().body(apiResponse);
             }
@@ -52,6 +52,7 @@ public class AuthenticationController {
             // Create new user object
             User user = new User();
             user.setUsername(registerRequest.username());
+            user.setSurname(registerRequest.surname());
             user.setEmail(registerRequest.email());
             user.setPassword(passwordEncoder.encode(registerRequest.password())); // Encrypt password
             user.setRole(Role.MEMBER); // Default role

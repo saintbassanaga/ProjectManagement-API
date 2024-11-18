@@ -2,6 +2,8 @@ package tech.saintbassanaga.sysges.services.serviceImpls;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tech.saintbassanaga.sysges.dtos.CommentDto;
+import tech.saintbassanaga.sysges.dtos.DtoMapper;
 import tech.saintbassanaga.sysges.models.Comment;
 import tech.saintbassanaga.sysges.models.mapped.CommentType;
 import tech.saintbassanaga.sysges.repository.CommentRepository;
@@ -96,22 +98,23 @@ public class CommentServiceImpls implements CommentService {
     /**
      * Adds a comment to the system. If the comment is an answer, it sets the parentCommentUUID.
      *
-     * @param comment the comment to add
+     * @param commentDto the comment to add
      * @return the saved comment
      * @throws RuntimeException if the parent comment does not exist when adding an answer
      */
     @Transactional
-    @Override
-    public Comment addComment(Comment comment) {
+
+    public Comment addComment(CommentDto commentDto) {
+
+        Comment comment = DtoMapper.commentDto(commentDto);
         // If the comment is an ANSWER, validate and set the parent comment
-        if (comment.getType() == CommentType.ANSWER) {
-            if (comment.getParent() == null) {
+        if (commentDto.type() == CommentType.ANSWER) {
+            if (commentDto.parentUuid() == null) {
                 throw new RuntimeException("Parent comment UUID is required when adding an ANSWER.");
             }
-
             // Verify that the parent comment exists
-            Comment parentComment = commentRepository.findById(comment.getParent().getUuid())
-                    .orElseThrow(() -> new RuntimeException("Parent comment not found with UUID: " + comment.getParent().getUuid()));
+            Comment parentComment = commentRepository.findById(commentDto.parentUuid())
+                    .orElseThrow(() -> new RuntimeException("Parent comment not found with UUID: " + commentDto.parentUuid()));
 
             // Set the parentCommentUUID for the answer comment
             comment.setParent(parentComment.getParent());

@@ -1,10 +1,8 @@
 package tech.saintbassanaga.sysges.services;
 
 import org.springframework.stereotype.Service;
+import tech.saintbassanaga.sysges.dtos.CommentDto;
 import tech.saintbassanaga.sysges.models.Comment;
-import tech.saintbassanaga.sysges.models.Project;
-import tech.saintbassanaga.sysges.models.Task;
-import tech.saintbassanaga.sysges.models.User;
 
 import java.util.List;
 import java.util.UUID;
@@ -48,9 +46,9 @@ public interface CommentService {
         /**
          * Adds a new comment to the system.
          *
-         * @param comment the comment to add
+         * @param commentDto the comment to add
          * @return the added comment
          */
-        Comment addComment(Comment comment);
+        Comment addComment(CommentDto commentDto);
 
 }
