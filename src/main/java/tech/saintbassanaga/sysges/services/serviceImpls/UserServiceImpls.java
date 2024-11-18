@@ -2,12 +2,16 @@ package tech.saintbassanaga.sysges.services.serviceImpls;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tech.saintbassanaga.sysges.dtos.*;
 import tech.saintbassanaga.sysges.models.User;
 import tech.saintbassanaga.sysges.models.mapped.ProjectState;
+import tech.saintbassanaga.sysges.models.mapped.Role;
 import tech.saintbassanaga.sysges.repository.ProjectRepository;
 import tech.saintbassanaga.sysges.repository.TaskRepository;
 import tech.saintbassanaga.sysges.repository.UserRepository;
@@ -28,7 +32,7 @@ import java.util.stream.Collectors;
  * In the Project SysGes at Sat - 10/26/24
  */
 @Service
-public class UserServiceImpls implements UserService {
+public class UserServiceImpls implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
@@ -38,12 +42,11 @@ public class UserServiceImpls implements UserService {
     /**
      * Constructor to initialize UserServiceImpls with necessary dependencies.
      *
-     * @param userSpecification the specification service for building dynamic queries
      * @param userRepository    the repository for User entities
      * @param projectRepository the repository for Project entities
      * @param taskRepository    the repository for Task entities
      */
-    public UserServiceImpls(UserSpecification userSpecification, UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpls(UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
@@ -157,4 +160,29 @@ public class UserServiceImpls implements UserService {
                 .map(DtoMapper::shortUserDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getUsername())
+                .password(user.getPassword()) // Ensure password is encoded
+                .roles(user.getRole().name())
+                .build();
+    }
+
+    @Override
+    public String changeUserRole(UUID userUuid, String role) {
+        // Find the user by UUID
+        User user = userRepository.findById(userUuid).orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Change the user's role
+        user.setRole(Role.valueOf(role)); // Assuming you have a setRole method
+        userRepository.save(user);
+
+        return "User role updated successfully to " + role;
+    }
+
 }

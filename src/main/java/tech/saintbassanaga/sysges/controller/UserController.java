@@ -1,23 +1,16 @@
 package tech.saintbassanaga.sysges.controller;
 
-/**
- * Created by saintbassanaga {stpaul}
- * In the Project SysGes at Tue - 10/29/24
- */
-
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tech.saintbassanaga.sysges.dtos.*;
+import tech.saintbassanaga.sysges.exception.ApiResponse;
 import tech.saintbassanaga.sysges.models.mapped.ProjectState;
 import tech.saintbassanaga.sysges.services.serviceImpls.UserServiceImpls;
 
 import java.util.List;
 import java.util.UUID;
 
-/**
- * UserController is responsible for handling user-related HTTP requests
- * and delegating to UserServiceImpls for business logic.
- */
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -28,80 +21,67 @@ public class UserController {
         this.userService = userService;
     }
 
-    /**
-     * Endpoint to create a new user.
-     *
-     * @param userCreationDto the data transfer object with user creation information
-     * @return a response entity with a confirmation message
-     */
-    @PostMapping("/create")
-    public ResponseEntity<String> createUser(@RequestBody UserCreationDto userCreationDto) {
+    @PostMapping("/admin/create")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse> createUser(@RequestBody UserCreationDto userCreationDto) {
         String response = userService.createUser(userCreationDto);
-        return ResponseEntity.ok(response);
+        ApiResponse apiResponse = new ApiResponse(response, 201, response);
+        return ResponseEntity.status(201).body(apiResponse);
     }
 
-    /**
-     * Endpoint to update an existing user.
-     *
-     * @param userUuid      the UUID of the user to be updated
-     * @param updateUserDto the DTO containing updated information for the user
-     * @return a response entity with the updated user information
-     */
-    @PutMapping("/{userUuid}/update")
-    public ResponseEntity<ShowUserDto> updateUser(@PathVariable UUID userUuid, @RequestBody UpdateUserDto updateUserDto) {
+    @PutMapping("/admin/{userUuid}/update")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse> updateUser(
+            @PathVariable UUID userUuid,
+            @RequestBody UpdateUserDto updateUserDto) {
         ShowUserDto updatedUser = userService.update(userUuid, updateUserDto);
-        return ResponseEntity.ok(updatedUser);
+        ApiResponse apiResponse = new ApiResponse("User updated successfully", 200, updatedUser);
+        return ResponseEntity.ok(apiResponse);
     }
 
-    /**
-     * Endpoint to retrieve all users in short format.
-     *
-     * @return a response entity with the list of all users
-     */
+    @PatchMapping("/admin/{userUuid}/role")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse> changeUserRole(
+            @PathVariable UUID userUuid,
+            @RequestParam String role) {
+        if (!role.equals("ADMIN") && !role.equals("USER")) {
+            ApiResponse apiResponse = new ApiResponse("Invalid role. Role must be 'ADMIN' or 'USER'.", 400);
+            return ResponseEntity.badRequest().body(apiResponse);
+        }
+
+        String response = userService.changeUserRole(userUuid, role);
+        ApiResponse apiResponse = new ApiResponse(response + role, 200, response);
+        return ResponseEntity.ok(apiResponse);
+    }
+
     @GetMapping
-    public ResponseEntity<List<ShortUserDto>> findAllUsers() {
+    public ResponseEntity<ApiResponse> findAllUsers() {
         List<ShortUserDto> users = userService.findAll();
-        return ResponseEntity.ok(users);
+        ApiResponse apiResponse = new ApiResponse("Users retrieved successfully", 200, users);
+        return ResponseEntity.ok(apiResponse);
     }
 
-    /**
-     * Endpoint to find a user by UUID.
-     *
-     * @param uuid the UUID of the user to retrieve
-     * @return a response entity with the found user details
-     */
     @GetMapping("/{uuid}")
-    public ResponseEntity<ShowUserDto> findUserByUuid(@PathVariable UUID uuid) {
+    public ResponseEntity<ApiResponse> findUserByUuid(@PathVariable UUID uuid) {
         ShowUserDto user = userService.findByUuid(uuid);
-        return ResponseEntity.ok(user);
+        ApiResponse apiResponse = new ApiResponse("User found successfully", 200, user);
+        return ResponseEntity.ok(apiResponse);
     }
 
-    /**
-     * Endpoint to retrieve users with tasks that have specific criteria.
-     *
-     * @param state   the task status filter
-     * @param role     the user role filter
-     * @param location the user location filter
-     * @return a response entity with the list of matching users
-     */
     @GetMapping("/tasks")
-    public ResponseEntity<List<ShortUserDto>> findUsersWithTaskRunning(
+    public ResponseEntity<ApiResponse> findUsersWithTaskRunning(
             @RequestParam String state,
             @RequestParam String role,
             @RequestParam String location) {
         List<ShortUserDto> users = userService.findUserWithTaskRunning(state, role, location);
-        return ResponseEntity.ok(users);
+        ApiResponse apiResponse = new ApiResponse("Users with tasks found", 200, users);
+        return ResponseEntity.ok(apiResponse);
     }
 
-    /**
-     * Endpoint to retrieve users associated with a specific project state.
-     *
-     * @param projectState the project state to filter users by
-     * @return a response entity with the list of matching users
-     */
     @GetMapping("/projects")
-    public ResponseEntity<List<ShortUserDto>> findUsersWithProjectState(@RequestParam ProjectState projectState) {
+    public ResponseEntity<ApiResponse> findUsersWithProjectState(@RequestParam ProjectState projectState) {
         List<ShortUserDto> users = userService.findUserWithProjectState(projectState);
-        return ResponseEntity.ok(users);
+        ApiResponse apiResponse = new ApiResponse("Users with project state found", 200, users);
+        return ResponseEntity.ok(apiResponse);
     }
 }

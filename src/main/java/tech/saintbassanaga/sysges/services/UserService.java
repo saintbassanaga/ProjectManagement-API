@@ -16,10 +16,17 @@ import java.util.UUID;
  */
 @Component
 public interface UserService {
-    public String createUser(UserCreationDto user);
-    public ShowUserDto update(UUID userUuid,UpdateUserDto updateUserDto);
-    public List<ShortUserDto> findAll();
-    public ShowUserDto findByUuid(UUID uuid);
-    public List<ShortUserDto> findUserWithTaskRunning(String status, String role, String location);
-    public List<ShortUserDto> findUserWithProjectState(ProjectState projectState);
+    String createUser(UserCreationDto user);
+
+    ShowUserDto update(UUID userUuid, UpdateUserDto updateUserDto);
+
+    List<ShortUserDto> findAll();
+
+    ShowUserDto findByUuid(UUID uuid);
+
+    List<ShortUserDto> findUserWithTaskRunning(String status, String role, String location);
+
+    List<ShortUserDto> findUserWithProjectState(ProjectState projectState);
+
+    String changeUserRole(UUID userUuid, String role);
 }

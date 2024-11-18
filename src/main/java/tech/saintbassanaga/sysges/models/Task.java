@@ -1,8 +1,10 @@
 package tech.saintbassanaga.sysges.models;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Cache;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import tech.saintbassanaga.sysges.models.mapped.AuditingEntity;
 import tech.saintbassanaga.sysges.models.mapped.TaskSeverity;
 import tech.saintbassanaga.sysges.models.mapped.TaskState;

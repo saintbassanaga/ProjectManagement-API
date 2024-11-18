@@ -7,8 +7,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import tech.saintbassanaga.sysges.dtos.*;
 import tech.saintbassanaga.sysges.exception.ApiResponse;
+import tech.saintbassanaga.sysges.exception.GeneralException;
 import tech.saintbassanaga.sysges.models.Project;
 import tech.saintbassanaga.sysges.services.ProjectService;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -24,7 +27,6 @@ import java.util.UUID;
 @RequestMapping("/api/projects")
 public class ProjectController {
 
-
     private final ProjectService projectService;
 
     public ProjectController(ProjectService projectService) {
@@ -32,35 +34,37 @@ public class ProjectController {
     }
 
     /**
-     * Creates a new project.
+     * Creates a new project (Admin only).
      *
      * @param createProjectDto the DTO containing project creation data
      * @return a ResponseEntity containing a success message with the new project UUID
      */
-    @PostMapping
+    @PostMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createProject(@Valid @RequestBody CreateProjectDto createProjectDto) {
         try {
             String response = projectService.createProject(createProjectDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(response, HttpStatus.CREATED.value()));
-        } catch (Exception ex) {
+        } catch (GeneralException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error creating project", ex);
         }
     }
 
     /**
-     * Updates an existing project.
+     * Updates an existing project (Admin only).
      *
      * @param userUuid the UUID of the user performing the update
      * @param updateProjectDto the DTO containing updated project information
      * @return a ResponseEntity with the updated Project
      */
-    @PatchMapping("/{userUuid}")
+    @PatchMapping("/admin/{userUuid}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateProject(@PathVariable UUID userUuid,
                                            @Valid @RequestBody UpdateProjectDto updateProjectDto) {
         try {
             Project updatedProject = projectService.update(userUuid, updateProjectDto);
             return ResponseEntity.ok(new ApiResponse("Project updated successfully", HttpStatus.OK.value(), updatedProject));
-        } catch (Exception ex) {
+        } catch (GeneralException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project or User not found", ex);
         }
     }
@@ -75,7 +79,7 @@ public class ProjectController {
         try {
             List<ShortProjectDto> projects = projectService.findAll();
             return ResponseEntity.ok(new ApiResponse("Projects retrieved successfully", HttpStatus.OK.value(), projects));
-        } catch (Exception ex) {
+        } catch (GeneralException ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error retrieving projects", ex);
         }
     }
@@ -91,58 +95,61 @@ public class ProjectController {
         try {
             ShowProjectDto project = projectService.findByUuid(uuid);
             return ResponseEntity.ok(new ApiResponse("Project retrieved successfully", HttpStatus.OK.value(), project));
-        } catch (Exception ex) {
+        } catch (GeneralException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found", ex);
         }
     }
 
     /**
-     * Deletes a project by UUID.
+     * Deletes a project by UUID (Admin only).
      *
      * @param uuid the UUID of the project to delete
      * @return a no-content response upon successful deletion
      */
-    @DeleteMapping("/{uuid}")
+    @DeleteMapping("/admin/{uuid}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteProject(@PathVariable UUID uuid) {
         try {
             projectService.deleteByUser(uuid);
             return ResponseEntity.ok(new ApiResponse("Project deleted successfully", HttpStatus.OK.value()));
-        } catch (Exception ex) {
+        } catch (GeneralException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found", ex);
         }
     }
 
     /**
-     * Creates a new project.
+     * Creates a new task and adds it to a project (Admin only).
      *
      * @param taskDto the DTO containing task creation data
-     * @return a ResponseEntity containing a success message with the new project UUID
+     * @param projectUuid the UUID of the project to add the task to
+     * @return a ResponseEntity containing a success message with the new task information
      */
-    @PostMapping("/{projectUuid}/addTask")
+    @PostMapping("/admin/{projectUuid}/addTask")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addTaskToProject(@Valid @RequestBody TaskDto taskDto, @PathVariable UUID projectUuid) {
         try {
-            String response = projectService.addTask(projectUuid,taskDto);
+            String response = projectService.addTask(projectUuid, taskDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(response, HttpStatus.CREATED.value()));
-        } catch (Exception ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error creating new task ", ex);
+        } catch (GeneralException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error creating new task", ex);
         }
     }
 
     /**
-     * Deletes a project by UUID.
+     * Deletes a task from a project (Admin only).
      *
-     * @param taskUuid the UUID of the project to delete
+     * @param taskUuid the UUID of the task to delete
+     * @param projectUuid the UUID of the project to delete the task from
      * @return a no-content response upon successful deletion
      */
-    @DeleteMapping("/{projectUuid}/{taskUuid}/")
+    @DeleteMapping("/admin/{projectUuid}/{taskUuid}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteTask(@PathVariable UUID taskUuid, @PathVariable UUID projectUuid) {
         try {
-           String response = projectService.deleteTask(projectUuid,taskUuid);
+            String response = projectService.deleteTask(projectUuid, taskUuid);
             return ResponseEntity.ok(new ApiResponse(response, HttpStatus.OK.value()));
-        } catch (Exception ex) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found", ex);
+        } catch (GeneralException ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project or Task not found", ex);
         }
     }
-
 }
-
